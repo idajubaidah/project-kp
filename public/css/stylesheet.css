@@ -1,0 +1,12 @@
+.row {
+	margin: auto;
+	
+	margin-bottom: 5px;
+	
+}
+
+.form-control {
+	border: none;
+	border-bottom: 1px solid #e6e6e6;
+}
+
