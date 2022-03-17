@@ -29,7 +29,7 @@
               <a class="nav-link active" aria-current="page" href="/" style="color:#000; font-size: 16px;">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/register/registrasi" style="color:#000; font-size: 16px;">Daftar</a>
+              <a class="nav-link" href="/register/cari" style="color:#000; font-size: 16px;">Daftar</a>
             </li>
           </ul>
         </div>
@@ -44,11 +44,10 @@
       <div class="footer-copyright py-3 text-center">
         <div class="footer-copyright-wrapper">
           <p class="footer-copyright-text">
-            <p class="text-white"> ©2020. | Kementrian Kesehatan. | All rights reserved. </p>
+            <p class="text-white"> ©2022. | Kementrian Kesehatan. | All rights reserved. </p>
           </p>
         </div>
       </div>
-
     </footer>
     <!-- Optional JavaScript; choose one of the two! -->
 

@@ -61,7 +61,7 @@
 				<div class="row mb-3">
 					<label for="no_hp" class="col-sm-2 col-form-label">No. Handphone</label>
 					<div class="col-sm-10 form-holder">
-						<input type="text" class="form-control <?= ($validation->hasError('no_hp')) ? 'is-invalid' : ''; ?>" id="no_hp" name="no_hp" value="<?= old('no_hp'); ?>">
+						<input type="text" class="form-control <?= ($validation->hasError('no_hp')) ? 'is-invalid' : ''; ?>" id="no_hp" name="no_hp" minlength="11" maxlength="13" value="<?= old('no_hp'); ?>">
 						<div id="validationServerUsernameFeedback" class="invalid-feedback">
 							<?= $validation->getError('no_hp'); ?>
 						</div>

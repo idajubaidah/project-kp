@@ -5,10 +5,10 @@
 	<div class="row">
 		<div class="col">
 			<form action="" method="post">
-			<div class="input-group mb-3">
-				<input type="text" class="form-control" placeholder="Masukan keyword pencarian..." aria-label="Recipient's username" aria-describedby="button-addon2" name="keyword">
-				<button class="btn btn-outline-secondary" type="submit" id="button-addon2">Cari</button>
-			</div>
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" placeholder="Masukan keyword pencarian..." aria-label="Recipient's username" aria-describedby="button-addon2" name="keyword">
+					<button class="btn btn-outline-secondary" type="submit" id="button-addon2">Cari</button>
+				</div>
 			</form>
 		</div>
 	</div>
@@ -38,12 +38,10 @@
 									<th>Aksi</th>
 								</tr>
 							</thead>
-							
 							<tbody>
 								<?php $no = 1 + (5 * ($currentPage - 1));
-								foreach ($getRegister as $reg) { ?>
+								foreach ($getRegister->getResultArray() as $reg) { ?>
 									<tr>
-										
 										<td><?= $no; ?></td>
 										<td><?= $reg['nik']; ?></td>
 										<td><?= $reg['nama']; ?></td>
@@ -51,9 +49,7 @@
 										<td><?= $reg['no_hp']; ?></td>
 										<td><?= $reg['alamat']; ?></td>
 										<td><?= $reg['jenis_kelamin']; ?></td>
-										
 										<td><?= $reg['satuan_kerja']; ?></td>
-										
 										<td><?= $reg['unit_kerja']; ?></td>
 										<td><?= $reg['tgl_tes']; ?></td>
 										<td><?= $reg['jenis_tes']; ?></td>
@@ -70,7 +66,6 @@
 									<?php $no++;
 								} ?>
 							</tbody>
-
 						</table>
 						<?= $pager->links('registers', 'admin_pagination'); ?>
 					</div>

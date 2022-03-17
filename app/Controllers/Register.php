@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 use App\Models\RegisterModel;
-
+use App\Models\SatuanKerjaModel;
+use App\Models\UnitKerjaModel;
+use Dompdf\Dompdf;
 
 class Register extends BaseController
 {
@@ -11,6 +13,9 @@ class Register extends BaseController
     public function __construct()
     {
         $this->registerModel = new RegisterModel();
+        $this->SatuanKerjaModel = new SatuanKerjaModel();
+        $this->UnitKerjaModel = new UnitKerjaModel();
+        
     }
     public function index()
     {
@@ -25,81 +30,35 @@ class Register extends BaseController
         // session();
         $data = [
             'title' => 'Pendaftaran PCR & Antigen',
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'satuan_kerja' => $this->SatuanKerjaModel->orderBy('kd_satuan_kerja', 'DESC')->findAll()
         ];
 
         return view('pages/registrasi', $data);
     }
 
+    function action()
+    {
+        if($this->request->getVar('action'))
+        {
+            $action = $this->request->getVar('action');
+
+            if($action == 'get_unitKerja')
+            {
+
+                $unitdata = $this->UnitKerjaModel->where('kd_satuan_kerja', $this->request->getVar('kd_satuan_kerja'))->findAll();
+
+                echo json_encode($unitdata);
+            }
+        }
+    }
+
     public function daftar()
     {
 
-        // Validasi input
-        if(!$this->validate([
-            'nik' => [
-                'rules' => 'required|min_length[16]|max_length[16]',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                    'min_length' => '{field} harus 16 karakter!',
-                    'max_length' => '{field} harus 16 karakter!'
-                ]
-            ],
-            'nama' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ],
-            'tgl_lahir' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ],
-            'jenis_kelamin' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ],
-            'no_hp' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ],
-            'alamat' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ],
-            'jenis_tes' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ],
-            'tgl_tes' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => '{field} harus diisi!',
-                ]
-            ]
-        ])) {
-            $validation = \Config\Services::validation();
-            //dd($validation); //mengecek apakah data sudah ditangkap
-            return redirect()->to('/register/registrasi/')->withInput()->with('validation', $validation);
-        }
-
-
-
-
         //$this->request->getVar(); //ngambil data dari form request. kalo mau ambil satu data -> ('id')
 
-        $data = [
-            'title' => 'Pendaftaran Berhasil!'
-        ];
+
         $this->registerModel->save([
             'nik' => $this->request->getVar('nik'),
             'nama' => $this->request->getVar('nama'),
@@ -108,12 +67,71 @@ class Register extends BaseController
             'no_hp' => $this->request->getVar('no_hp'),
             'alamat' => $this->request->getVar('alamat'),
             'jenis_tes' => $this->request->getVar('jenis_tes'),
-            'tgl_tes' => $this->request->getVar('tgl_tes')
+            'tgl_tes' => $this->request->getVar('tgl_tes'),
+            'kd_satuan_kerja' => $this->request->getVar('satuan_kerja'),
+            'kd_unit_kerja' => $this->request->getVar('unit_kerja')
         ]);
 
-        session()->setFlashdata('pesan', 'Selamat! Anda berhasil mendaftar!');
+        $satker  = $this->request->getVar('satuan_kerja');
+        $unit    = $this->request->getVar('unit_kerja');
+        $db      = \Config\Database::connect();
+        $builder = $db->table('registers');
+        $builder->select('satuan_kerja');
+        $builder->join('satuankerja', 'satuankerja.kd_satuan_kerja = registers.kd_satuan_kerja');
+        $builder->where('satuankerja.kd_satuan_kerja', $satker);
+        $query = $builder->get(1);
+        // print_r($query);
+
+        $builderr = $db->table('unitkerja');
+        $builderr->select('unit_kerja');
+        $builderr->join('registers', 'registers.kd_unit_kerja = unitkerja.kd_unit_kerja');
+        $builderr->where('unitkerja.kd_unit_kerja', $unit);
+        $queryy = $builderr->get(1);
+
+
+
+        $data = [
+            'title' => 'Pendaftaran Berhasil!',
+            'nik' => $this->request->getVar('nik'),
+            'nama' => $this->request->getVar('nama'),
+            'tgl_lahir' => $this->request->getVar('tgl_lahir'),
+            'jenis_kelamin' => $this->request->getVar('jenis_kelamin'),
+            'no_hp' => $this->request->getVar('no_hp'),
+            'alamat' => $this->request->getVar('alamat'),
+            'jenis_tes' => $this->request->getVar('jenis_tes'),
+            'tgl_tes' => $this->request->getVar('tgl_tes'),
+            'satuan_kerja' => $query,
+            'unit_kerja' => $queryy
+            
+        ];
+
+        // session()->setFlashdata('pesan', 'Selamat! Anda berhasil mendaftar!');
 
         return view('pages/output', $data);
+        // $html = view('pages/output', $data);
+
+        // $filename = date('y-m-d-H-i-s'). '-bukti-pendaftaran';
+
+        // // instantiate and use the dompdf class
+        // $dompdf = new \Dompdf\Dompdf();
+
+        // // load HTML content
+        // $dompdf->loadHtml($html);
+
+        // // (optional) setup the paper size and orientation
+        // $dompdf->setPaper('A4', 'landscape');
+
+        // // render html as PDF
+        // $dompdf->render();
+
+        // // output the generated pdf
+        // $dompdf->stream($filename);
+
+    }
+
+    public function printpdf()
+    {
+        return view('pages/printpdf');
     }
 
     public function cari()
@@ -122,7 +140,7 @@ class Register extends BaseController
             'title' => 'Pendaftaran PCR & Antigen'
         ];
 
-        return view('pages/pencarian', $data);
+        return view('pages/search', $data);
     }
 
     public function pencarian()
@@ -197,8 +215,9 @@ class Register extends BaseController
         if(curl_errno($curl)){
             return 'Data : ' . curl_error($curl) . ' tidak ditemukan';
         }
-        $data['response'] = json_decode($response);
-        // print_r($data);
+        $data['response'] = json_decode($response, true);
+        //$tes = $data->result();
+        print_r($data);
         // var_dump($data);
 
         echo view ('pages/hasil', $data);
@@ -218,6 +237,48 @@ class Register extends BaseController
         // var_dump($data_array);
         // return view('pages/hasil',$data_array);
 
+    }
+
+    public function search() 
+    {
+
+        $cari = $this->request->getVar('nik');
+        $dataHasil = $this->registerModel->where('nik', $cari)->first();
+        if (empty($dataHasil)) {
+            // throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Anda Tidak ditemukan!');
+            echo '<script>
+            alert("Data yang anda cari tidak ditemukan. Silahkan lakukan pendaftaran terlebih dahulu.");
+            window.location="' . base_url('/register/registrasi') . '"
+            </script>';
+        }
+
+        $kd_satker = $dataHasil['kd_satuan_kerja'];
+        $kd_unit = $dataHasil['kd_unit_kerja'];
+
+        $db      = \Config\Database::connect();
+        $builder = $db->table('registers');
+        $builder->select('satuan_kerja');
+        $builder->join('satuankerja', 'satuankerja.kd_satuan_kerja = registers.kd_satuan_kerja');
+        $builder->where('satuankerja.kd_satuan_kerja', $kd_satker);
+        $query = $builder->get(1);
+        // print_r($query);
+
+        $builderr = $db->table('unitkerja');
+        $builderr->select('unit_kerja');
+        $builderr->join('registers', 'registers.kd_unit_kerja = unitkerja.kd_unit_kerja');
+        $builderr->where('unitkerja.kd_unit_kerja', $kd_unit);
+        $queryy = $builderr->get(1);
+
+        // dd($dataHasil['kd_satuan_kerja']);
+
+                
+
+        
+
+        // $data = $this->SatuanKerjaModel->orderBy('kd_satuan_kerja', 'DESC')->findAll();
+
+        echo view('pages/hasil', compact('dataHasil', 'query', 'queryy'));
+        
     }
 
 

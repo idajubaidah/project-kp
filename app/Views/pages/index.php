@@ -9,7 +9,7 @@
 			</div>
 			<div class="col-3 mt-3 text-center">
 				<h2 class="mb-4">Covid-19 Test</h2>
-				<a href="/register/registrasi" class="btn btn-primary">Daftar Tes</a>
+				<a href="/register/cari" class="btn btn-primary">Daftar Tes</a>
 			</div>
 		</div>
 	</div>
